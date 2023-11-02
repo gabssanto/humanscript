@@ -1,0 +1,112 @@
+# This is a comment
+# This is a hello world print
+print "Hello World"
+
+# This is a variable
+name as String = "John"
+
+# This is a constant
+name is String = "John"
+
+# This is a function (auto return last line)
+greetings as Function with name as String, age as Integer
+    print "Hello " + name + " you are " + age + " years old"
+end
+
+# This is a function (explicit return)
+greetings as Function with name as String, age as Integer
+    return "Hello " + name + " you are " + age + " years old"
+end
+
+# If statement
+if name equals "John"
+    print "Hello John"
+end
+
+# If else statement
+if name equals "John"
+    print "Hello John"
+else
+    print "Hello Stranger"
+end
+
+# If else if statement
+if name equals "John"
+    print "Hello John"
+else if name equals "Jane"
+    print "Hello Jane"
+else
+    print "Hello Stranger"
+end
+
+# if else comparison
+equals "=="
+not equals "!="
+less than "<"
+greater than ">"
+less than or equals "<="
+greater than or equals ">="
+and "&&"
+or "||"
+
+# While loop
+while name equals "John"
+    print "Hello John"
+end
+
+# This is a class
+Person as Class with name as String, age as Integer
+    # This is a constructor
+    init with name as String, age as Integer
+        @name = name
+        @age = age
+    end
+
+    # This is a method
+    greetings as Function
+        print "Hello " + @name + " you are " + @age + " years old"
+    end
+end
+
+# This is a class with inheritance
+Person as Class with name as String, age as Integer extends Human
+...
+end
+
+# Try catch
+try
+    # Do something
+catch error when StandardError
+    # Catch error
+end
+
+# Possible variable types
+String
+Integer (Auto converts to float)
+Boolean
+Array
+Dictionary
+Class
+Function
+Blueprint (Interface)
+Type (Union or Intersection)
+
+# Generic types
+Box<T> as Class with value as T
+    init with value as T
+        @value = value
+    end
+end
+
+# Union types
+Result as Type is String or Integer
+
+# Intersection types
+Result as Type is String and Integer
+
+# Interfaces
+Person as Blueprint with
+    name as String
+    age as Integer
+    address as Dictionary
+end
