@@ -4,3 +4,5 @@ greetings as Function with
   tell name
   tell age
 end
+
+call greetings "Gabriel", 24

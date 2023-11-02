@@ -34,10 +34,13 @@ class Parser:
     def statements(self):
         statements = []
         while self.current_token is not None and self.current_token[1] != "end":
+            # print(self.current_token)
             if self.current_token[1] == "tell":
                 statements.append(self.tell_statement())
             elif self.current_token[1] == "ask":
                 statements.append(self.ask_statement())
+            elif self.current_token[1] == "call":
+                statements.append(self.func_call())
             elif self.current_token[0] == TT_IDENTIFIER:
                 if self.peek() == (TT_KEYWORD, "as"):
                     # statements.append(self.var_declaration())
@@ -172,8 +175,38 @@ class Parser:
         # Parse the function body
         body = self.statements()
 
-        if self.current_token[1] != "end":
+        if self.current_token is None or self.current_token[1] != "end":
             raise Exception("Expected 'end' after function body")
-        self.advance()  # Consume 'end'
+        # self.advance()  # Consume 'end'
 
         return FuncDeclNode(func_name, params, body)
+
+    def func_call(self):
+        # Consume 'call' keyword
+        if self.current_token[1] != "call":
+            raise Exception("Expected 'call' to invoke a function")
+        self.advance()
+
+        # Consume function name
+        if self.current_token[0] != TT_IDENTIFIER:
+            raise Exception("Expected function name after 'call'")
+        func_name = self.current_token[1]
+        self.advance()
+
+        # Parse arguments - expecting at least one argument
+        args = []
+        if self.current_token[0] in [TT_STRING, TT_NUMBER, TT_IDENTIFIER]:
+            args.append(self.current_token[1])
+            self.advance()
+
+            # Consume any additional arguments separated by commas
+            while self.current_token and self.current_token[0] == TT_COMMA:
+                self.advance()  # consume the comma
+                if self.current_token[0] not in [TT_STRING, TT_NUMBER, TT_IDENTIFIER]:
+                    raise Exception(
+                        "Expected a string, number, or identifier as argument"
+                    )
+                args.append(self.current_token[1])
+                self.advance()
+
+        return FuncCallNode(func_name, args)

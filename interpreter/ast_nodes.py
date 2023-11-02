@@ -61,3 +61,12 @@ class FuncDeclNode(ASTNode):
 
     def __repr__(self) -> str:
         return f"FuncDeclNode({self.name}, {self.params}, {self.body})"
+
+
+class FuncCallNode(ASTNode):
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+    def __repr__(self) -> str:
+        return f"FuncCallNode({self.name}, {self.args})"

@@ -45,5 +45,6 @@ keywords = {
     "Boolean": TT_KEYWORD,
     "Array": TT_KEYWORD,
     "Dictionary": TT_KEYWORD,
+    "call": TT_KEYWORD,
     # ... other keywords ...
 }
