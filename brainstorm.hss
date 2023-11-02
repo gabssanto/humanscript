@@ -1,6 +1,18 @@
+# Predicate is always the variable, then type and then value
+# Idea is to abolish the need of using () and {} and instead use words
+
 # This is a comment
 # This is a hello world print
-print "Hello World"
+tell "Hello World"
+
+# Retrieve input from user
+name as String = ask "What is your name?: "
+
+# import a module
+gather ceil from Math
+
+# Or import all
+gather Math
 
 # This is a variable
 name as String = "John"
@@ -10,7 +22,7 @@ name is String = "John"
 
 # This is a function (auto return last line)
 greetings as Function with name as String, age as Integer
-    print "Hello " + name + " you are " + age + " years old"
+    tell "Hello " + name + " you are " + age + " years old"
 end
 
 # This is a function (explicit return)
@@ -20,23 +32,23 @@ end
 
 # If statement
 if name equals "John"
-    print "Hello John"
+    tell "Hello John"
 end
 
 # If else statement
 if name equals "John"
-    print "Hello John"
+    tell "Hello John"
 else
-    print "Hello Stranger"
+    tell "Hello Stranger"
 end
 
 # If else if statement
 if name equals "John"
-    print "Hello John"
+    tell "Hello John"
 else if name equals "Jane"
-    print "Hello Jane"
+    tell "Hello Jane"
 else
-    print "Hello Stranger"
+    tell "Hello Stranger"
 end
 
 # if else comparison
@@ -51,7 +63,7 @@ or "||"
 
 # While loop
 while name equals "John"
-    print "Hello John"
+    tell "Hello John"
 end
 
 # This is a class
@@ -64,7 +76,7 @@ Person as Class with name as String, age as Integer
 
     # This is a method
     greetings as Function
-        print "Hello " + @name + " you are " + @age + " years old"
+        tell "Hello " + @name + " you are " + @age + " years old"
     end
 end
 
@@ -88,11 +100,11 @@ Array
 Dictionary
 Class
 Function
-Blueprint (Interface)
+Bluetell (Interface)
 Type (Union or Intersection)
 
 # Generic types
-Box<T> as Class with value as T
+Box of T as Class with value as T
     init with value as T
         @value = value
     end
@@ -105,7 +117,7 @@ Result as Type is String or Integer
 Result as Type is String and Integer
 
 # Interfaces
-Person as Blueprint with
+Person as Bluetell with
     name as String
     age as Integer
     address as Dictionary
