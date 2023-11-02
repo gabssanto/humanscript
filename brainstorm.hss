@@ -21,12 +21,12 @@ name as String = "John"
 name is String = "John"
 
 # This is a function (auto return last line)
-greetings as Function with name as String, age as Integer
+greetings as Function with name as String, age as Number do
     tell "Hello " + name + " you are " + age + " years old"
 end
 
 # This is a function (explicit return)
-greetings as Function with name as String, age as Integer
+greetings as Function with name as String, age as Number do
     return "Hello " + name + " you are " + age + " years old"
 end
 
@@ -67,21 +67,21 @@ while name equals "John"
 end
 
 # This is a class
-Person as Class with name as String, age as Integer
+Person as Class with name as String, age as Number
     # This is a constructor
-    init with name as String, age as Integer
+    init with name as String, age as Number
         @name = name
         @age = age
     end
 
     # This is a method
-    greetings as Function
+    greetings as Function do
         tell "Hello " + @name + " you are " + @age + " years old"
     end
 end
 
 # This is a class with inheritance
-Person as Class with name as String, age as Integer extends Human
+Person as Class with name as String, age as Number extends Human
 ...
 end
 
@@ -94,7 +94,7 @@ end
 
 # Possible variable types
 String
-Integer (Auto converts to float)
+Number (Auto converts to float)
 Boolean
 Array
 Dictionary
@@ -111,14 +111,14 @@ Box of T as Class with value as T
 end
 
 # Union types
-Result as Type is String or Integer
+Result as Type is String or Number
 
 # Intersection types
-Result as Type is String and Integer
+Result as Type is String and Number
 
 # Interfaces
 Person as Bluetell with
     name as String
-    age as Integer
+    age as Number
     address as Dictionary
 end
