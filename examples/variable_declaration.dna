@@ -1,1 +1,1 @@
-name as String
+name as String = "John Doe"

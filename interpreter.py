@@ -89,10 +89,16 @@ class PrintNode(ASTNode):
     def __init__(self, value):
         self.value = value
 
+    def __repr__(self) -> str:
+        return f"PrintNode({self.value})"
+
 
 class StringNode(ASTNode):
     def __init__(self, value):
         self.value = value
+
+    def __repr__(self) -> str:
+        return f"StringNode({self.value})"
 
 
 class VarAssignNode(ASTNode):
@@ -100,10 +106,16 @@ class VarAssignNode(ASTNode):
         self.name = name
         self.value = value
 
+    def __repr__(self) -> str:
+        return f"VarAssignNode({self.name}, {self.value})"
+
 
 class VarAccessNode(ASTNode):
     def __init__(self, name):
         self.name = name
+
+    def __repr__(self) -> str:
+        return f"VarAccessNode({self.name})"
 
 
 class VarDeclNode(ASTNode):
@@ -111,10 +123,16 @@ class VarDeclNode(ASTNode):
         self.name = name
         self.var_type = var_type
 
+    def __repr__(self) -> str:
+        return f"VarDeclNode({self.name}, {self.var_type})"
+
 
 class InputNode(ASTNode):
     def __init__(self, prompt):
         self.prompt = prompt
+
+    def __repr__(self) -> str:
+        return f"InputNode({self.prompt})"
 
 
 # Parser: create an AST from tokens
@@ -164,9 +182,13 @@ class Parser:
 
     def tell_statement(self):
         self.advance()
-        if self.current_token[0] != TT_STRING:
-            raise Exception('Expected string after "tell"')
-        return PrintNode(StringNode(self.current_token[1]))
+        if self.current_token[0] == TT_STRING:
+            return PrintNode(StringNode(self.current_token[1]))
+        elif self.current_token[0] == TT_IDENTIFIER:
+            var_name = self.current_token[1]
+            return PrintNode(VarAccessNode(var_name))  # Create a variable access node
+        else:
+            raise Exception('Expected string or variable name after "tell"')
 
     def ask_statement(self):
         self.advance()
@@ -200,19 +222,32 @@ class Parser:
             }:
                 var_type = self.current_token[1]
                 self.advance()  # Consume type
-                return VarDeclNode(var_name, var_type)
+
+                if (
+                    self.current_token is not None
+                    and self.current_token[0] == TT_ASSIGN
+                ):
+                    self.advance()  # Consume '='
+
+                    # Now expecting a value for initialization
+                    if self.current_token[0] in (TT_STRING, TT_NUMBER):
+                        value = self.current_token[1]
+
+                        return VarAssignNode(
+                            var_name, value
+                        )  # Use a VarAssignNode to assign the initial value
+                    else:
+                        raise Exception(
+                            "Expected a value for variable initialization after '='"
+                        )
+                else:
+                    # If there's no '=', proceed with declaration without initialization
+                    return VarDeclNode(var_name, var_type)
+
             else:
                 raise Exception("Expected type keyword after 'as'")
         else:
             raise Exception("Expected 'as' after variable name")
-
-
-# Example usage:
-code = 'tell "Hello World"'
-tokens = lexer(code)
-parser = Parser(tokens)
-ast = parser.parse()
-# print(ast)  # This should print a representation of the AST
 
 
 # Evaluator: execute the AST
@@ -230,6 +265,13 @@ class Evaluator:
         print(value)
         return value
 
+    def visit_VarAccessNode(self, node):
+        var_name = node.name
+        if var_name in self.variables:
+            return self.variables[var_name]
+        else:
+            raise Exception(f"Undefined variable '{var_name}'")
+
     def visit_StringNode(self, node):
         return node.value
 
@@ -237,7 +279,10 @@ class Evaluator:
         return input(node.prompt)
 
     def visit_VarAssignNode(self, node):
-        value = self.visit(node.value)
+        if isinstance(node.value, ASTNode):
+            value = self.visit(node.value)
+        else:
+            value = node.value  # Directly assign the value
         self.variables[node.name] = value
         return value
 
@@ -288,10 +333,3 @@ def main():
 # Execute main function
 if __name__ == "__main__":
     main()
-
-# # Execute AST
-# evaluator = Evaluator()
-# for node in ast:
-#     evaluator.visit(node)
-
-# # This will print "Hello World" to the console as a result of executing the AST
