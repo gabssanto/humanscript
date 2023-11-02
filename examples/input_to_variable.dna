@@ -1,0 +1,2 @@
+name as String = ask "What is your name?: "
+tell name

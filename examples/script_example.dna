@@ -1,0 +1,7 @@
+greetings as Function do
+  tell "Gabriel"
+  input as String = ask "This is an input "
+  tell input
+end
+
+call greetings

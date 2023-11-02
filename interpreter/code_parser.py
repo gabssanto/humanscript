@@ -107,6 +107,16 @@ class Parser:
                 ):
                     self.advance()  # Consume '='
 
+                    if self.current_token[1] == "ask":
+                        # If the next token is 'ask', then we are expecting an input prompt
+                        self.advance()
+                        if self.current_token[0] != TT_STRING:
+                            raise Exception(
+                                "Expected string literal for the input prompt"
+                            )
+                        prompt = self.current_token[1]
+                        return VarAssignNode(var_name, InputNode(prompt))
+
                     # Now expecting a value for initialization
                     if self.current_token[0] in (TT_STRING, TT_NUMBER):
                         value = self.current_token[1]
@@ -195,7 +205,11 @@ class Parser:
 
         # Parse arguments - expecting at least one argument
         args = []
-        if self.current_token[0] in [TT_STRING, TT_NUMBER, TT_IDENTIFIER]:
+        if self.current_token and self.current_token[0] in [
+            TT_STRING,
+            TT_NUMBER,
+            TT_IDENTIFIER,
+        ]:
             args.append(self.current_token[1])
             self.advance()
 
@@ -207,6 +221,5 @@ class Parser:
                         "Expected a string, number, or identifier as argument"
                     )
                 args.append(self.current_token[1])
-                self.advance()
 
         return FuncCallNode(func_name, args)

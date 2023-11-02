@@ -30,6 +30,7 @@ def main():
     ast = parser.parse()
     evaluator = Evaluator()
     for node in ast:
+        # print(node)
         evaluator.visit(node)
 
 
