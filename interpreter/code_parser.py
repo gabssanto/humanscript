@@ -24,9 +24,9 @@ class Parser:
             raise Exception("Unexpected token: " + self.current_token[1])
         return ast
 
-    def peek(self):
+    def peek(self, step=1):
         # Look ahead at the next token without consuming the current one
-        next_pos = self.pos + 1
+        next_pos = self.pos + step
         if next_pos < len(self.tokens):
             return self.tokens[next_pos]
         return None
@@ -39,13 +39,21 @@ class Parser:
             elif self.current_token[1] == "ask":
                 statements.append(self.ask_statement())
             elif self.current_token[0] == TT_IDENTIFIER:
-                # Look ahead for 'as'
-                if self.peek() == ("KEYWORD", "as"):
-                    statements.append(self.var_declaration())
+                if self.peek() == (TT_KEYWORD, "as"):
+                    # statements.append(self.var_declaration())
+                    # Check if the next keyword is 'Function', indicating a function declaration
+                    if self.peek(2) == (TT_KEYWORD, "Function"):
+                        statements.append(self.func_declaration())
+                    else:
+                        statements.append(self.var_declaration())
+
                 else:
                     # Handle variable assignment or other expressions that start with an identifier
                     pass
-            self.advance()
+            else:
+                # Handle other kinds of statements or expressions
+                pass
+            self.advance()  # Make sure to only call this once per loop to keep the token stream moving forward
         return statements
 
     def tell_statement(self):
@@ -80,7 +88,6 @@ class Parser:
 
         if self.current_token is not None and self.current_token[1] == "as":
             self.advance()  # Consume 'as'
-
             if self.current_token[0] == TT_KEYWORD and self.current_token[1] in {
                 "String",
                 "Number",
@@ -116,3 +123,57 @@ class Parser:
                 raise Exception("Expected type keyword after 'as'")
         else:
             raise Exception("Expected 'as' after variable name")
+
+    def func_declaration(self):
+        # print("func declaration", self.current_token)
+        if self.current_token[0] != TT_IDENTIFIER:
+            raise Exception("Expected function name before 'Function' keyword")
+
+        func_name = self.current_token[1]
+        self.advance()  # Consume Function name
+
+        if self.current_token[1] != "as":
+            raise Exception("Expected 'as' after function name")
+
+        self.advance()  # Consumes 'as'
+
+        # TODO: Later change to Callable type eg. String() so auto inference can be done
+        if self.current_token[1] != "Function":
+            raise Exception(
+                f"Expected return type after 'as', returned {self.current_token[1]}"
+            )
+
+        return_type = self.current_token[1]
+        self.advance()  # Consumes 'Function'
+        # print("func declaration", self.current_token, func_name, return_type)
+
+        # Handle parameters
+        params = []
+        while self.current_token[1] != "do":
+            if self.current_token[1] == "with" or self.current_token[1] == ",":
+                self.advance()  # Consume 'with' or ','
+
+            var_name = self.current_token[1]
+            self.advance()  # Consume parameter_name
+
+            if self.current_token[1] != "as":
+                raise Exception("Expected 'as' after parameter name")
+            self.advance()  # Consume 'as'
+
+            if self.current_token[0] != TT_KEYWORD:
+                raise Exception("Expected type after 'as'")
+
+            var_type = self.current_token[1]
+            params.append((var_name, var_type))
+            self.advance()  # Consume type
+
+        self.advance()  # Consume 'do'
+
+        # Parse the function body
+        body = self.statements()
+
+        if self.current_token[1] != "end":
+            raise Exception("Expected 'end' after function body")
+        self.advance()  # Consume 'end'
+
+        return FuncDeclNode(func_name, params, body)

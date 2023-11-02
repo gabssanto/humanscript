@@ -7,3 +7,4 @@ TT_NUMBER = "NUMBER"
 # Additional token types
 TT_ASSIGN = "ASSIGN"
 TT_EQUALS = "EQUALS"
+TT_COMMA = "COMMA"

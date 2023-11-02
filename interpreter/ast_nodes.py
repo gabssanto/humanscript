@@ -51,3 +51,13 @@ class InputNode(ASTNode):
 
     def __repr__(self) -> str:
         return f"InputNode({self.prompt})"
+
+
+class FuncDeclNode(ASTNode):
+    def __init__(self, name, params, body):
+        self.name = name
+        self.params = params
+        self.body = body
+
+    def __repr__(self) -> str:
+        return f"FuncDeclNode({self.name}, {self.params}, {self.body})"

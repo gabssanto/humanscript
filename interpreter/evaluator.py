@@ -50,3 +50,7 @@ class Evaluator:
 
         self.variables[node.name] = initial_value
         return initial_value
+
+    def visit_FuncDeclNode(self, node):
+        # Store the function in the variables with its name as the key
+        self.variables[node.name] = {"params": node.params, "body": node.body}

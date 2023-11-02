@@ -25,6 +25,11 @@ greetings as Function with name as String, age as Number do
     tell "Hello " + name + " you are " + age + " years old"
 end
 
+# This is a function with typed return
+greetings as Function returns String with name as String, age as Number do
+    return "Hello " + name + " you are " + age + " years old"
+end
+
 # This is a function (explicit return)
 greetings as Function with name as String, age as Number do
     return "Hello " + name + " you are " + age + " years old"

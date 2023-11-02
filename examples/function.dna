@@ -1,7 +1,8 @@
 greetings as Function with
   name as String,
   age as Number do
-  "Hello, #{name}! You are #{age} years old."
+  tell name
+  tell age
 end
 
 
