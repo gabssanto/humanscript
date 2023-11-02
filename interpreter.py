@@ -7,6 +7,9 @@ TT_STRING = "STRING"
 TT_IDENTIFIER = "IDENTIFIER"
 TT_OPERATOR = "OPERATOR"
 TT_NUMBER = "NUMBER"
+# Additional token types
+TT_ASSIGN = "ASSIGN"
+TT_EQUALS = "EQUALS"
 
 # Keywords
 keywords = {
@@ -38,8 +41,10 @@ keywords = {
     "and",
 }
 
-# Operators
-operators = {"+", "-", "*", "/", "==", "!=", "<", ">", "<=", ">=", "&&", "||"}
+# Lexer Operators
+operators = {"+", "-", "*", "/", "==", "!=", "<", ">", "<=", ">=", "&&", "||", "="}
+# Add a comma and parenthesis to your operators.
+operators.update({",", "(", ")"})
 
 
 # Lexer: tokenize the input code
@@ -66,15 +71,13 @@ def lexer(code):
         # Match integers
         elif match := re.match(r"\d+", code):
             tokens.append((TT_NUMBER, int(match.group(0))))
+        # Match assignment
+        elif match := re.match(r"=", code):
+            tokens.append((TT_ASSIGN, match.group(0)))
         else:
             raise SyntaxError(f"Unknown sequence: {code}")
         code = code[match.end() :]
     return tokens
-
-
-# Additional token types
-TT_ASSIGN = "ASSIGN"
-TT_EQUALS = "EQUALS"
 
 
 # AST Node types
@@ -103,6 +106,17 @@ class VarAccessNode(ASTNode):
         self.name = name
 
 
+class VarDeclNode(ASTNode):
+    def __init__(self, name, var_type):
+        self.name = name
+        self.var_type = var_type
+
+
+class InputNode(ASTNode):
+    def __init__(self, prompt):
+        self.prompt = prompt
+
+
 # Parser: create an AST from tokens
 class Parser:
     def __init__(self, tokens):
@@ -113,9 +127,10 @@ class Parser:
 
     def advance(self):
         self.pos += 1
-        self.current_token = (
-            self.tokens[self.pos] if self.pos < len(self.tokens) else None
-        )
+        if self.pos < len(self.tokens):
+            self.current_token = self.tokens[self.pos]
+        else:
+            self.current_token = None
 
     def parse(self):
         ast = self.statements()
@@ -123,11 +138,27 @@ class Parser:
             raise Exception("Unexpected token: " + self.current_token[1])
         return ast
 
+    def peek(self):
+        # Look ahead at the next token without consuming the current one
+        next_pos = self.pos + 1
+        if next_pos < len(self.tokens):
+            return self.tokens[next_pos]
+        return None
+
     def statements(self):
         statements = []
         while self.current_token is not None and self.current_token[1] != "end":
             if self.current_token[1] == "tell":
                 statements.append(self.tell_statement())
+            elif self.current_token[1] == "ask":
+                statements.append(self.ask_statement())
+            elif self.current_token[0] == TT_IDENTIFIER:
+                # Look ahead for 'as'
+                if self.peek() == ("KEYWORD", "as"):
+                    statements.append(self.var_declaration())
+                else:
+                    # Handle variable assignment or other expressions that start with an identifier
+                    pass
             self.advance()
         return statements
 
@@ -136,6 +167,44 @@ class Parser:
         if self.current_token[0] != TT_STRING:
             raise Exception('Expected string after "tell"')
         return PrintNode(StringNode(self.current_token[1]))
+
+    def ask_statement(self):
+        self.advance()
+        # Expecting a string literal for the input prompt
+        if self.current_token[0] != TT_STRING:
+            raise Exception("Expected string literal for the input prompt")
+        prompt = self.current_token[1]
+
+        # Advance past the string
+        # self.advance()
+
+        var_name = prompt
+
+        # Return a VarAssignNode with the variable name and an InputNode
+        return VarAssignNode(var_name, InputNode(prompt))
+
+    def var_declaration(self):
+        # Assume current token is the variable identifier
+        var_name = self.current_token[1]
+        self.advance()  # Consume identifier
+
+        if self.current_token is not None and self.current_token[1] == "as":
+            self.advance()  # Consume 'as'
+
+            if self.current_token[0] == TT_KEYWORD and self.current_token[1] in {
+                "String",
+                "Number",
+                "Boolean",
+                "Array",
+                "Dictionary",
+            }:
+                var_type = self.current_token[1]
+                self.advance()  # Consume type
+                return VarDeclNode(var_name, var_type)
+            else:
+                raise Exception("Expected type keyword after 'as'")
+        else:
+            raise Exception("Expected 'as' after variable name")
 
 
 # Example usage:
@@ -163,6 +232,28 @@ class Evaluator:
 
     def visit_StringNode(self, node):
         return node.value
+
+    def visit_InputNode(self, node):
+        return input(node.prompt)
+
+    def visit_VarAssignNode(self, node):
+        value = self.visit(node.value)
+        self.variables[node.name] = value
+        return value
+
+    def visit_VarDeclNode(self, node):
+        # Here, you would set the initial value of the variable based on the type
+        # For simplicity, we will initialize all variables to None or an empty equivalent
+        if node.var_type == "String":
+            initial_value = ""
+        elif node.var_type == "Number":
+            initial_value = 0
+        # Add cases for other types
+        else:
+            initial_value = None
+
+        self.variables[node.name] = initial_value
+        return initial_value
 
 
 # Main function to execute the interpreter

@@ -18,7 +18,7 @@ ENV NAME World
 # Uncomment the next line if you have an app.py file
 # CMD ["python", "app.py"]
 
-RUN echo 'alias hss="python3 interpreter.py"' >> ~/.bashrc
+RUN echo 'alias dna="python3 interpreter.py"' >> ~/.bashrc
 
 # Otherwise, just start a Bash shell
 CMD ["/bin/bash"]
