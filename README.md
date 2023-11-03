@@ -24,6 +24,19 @@ dna examples/hello_world.dna
 tell "Hello world!"
 ```
 
+### Get input
+
+```dna
+ask "What's your name?"
+```
+
+### Variables
+
+```dna
+name as String = "Gabriel"
+age as Number = 24
+```
+
 ### Function example
 
 ```dna

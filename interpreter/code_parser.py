@@ -18,6 +18,13 @@ class Parser:
         else:
             self.current_token = None
 
+    def rollback(self):
+        self.pos -= 1
+        if self.pos >= 0:
+            self.current_token = self.tokens[self.pos]
+        else:
+            self.current_token = None
+
     def parse(self):
         ast = self.statements()
         if self.current_token is not None:
@@ -34,7 +41,7 @@ class Parser:
     def statements(self):
         statements = []
         while self.current_token is not None and self.current_token[1] != "end":
-            # print(self.current_token)
+            # print("statements", self.current_token)
             if self.current_token[1] == "tell":
                 statements.append(self.tell_statement())
             elif self.current_token[1] == "ask":
@@ -49,6 +56,8 @@ class Parser:
                         statements.append(self.func_declaration())
                     else:
                         statements.append(self.var_declaration())
+                        # self.rollback()
+                        # print("back to statements", self.current_token)
 
                 else:
                     # Handle variable assignment or other expressions that start with an identifier
@@ -117,8 +126,17 @@ class Parser:
                         prompt = self.current_token[1]
                         return VarAssignNode(var_name, InputNode(prompt))
 
+                    if self.current_token[0] in (TT_NUMBER, TT_LPAREN, TT_IDENTIFIER):
+                        # print("var assign", self.current_token)
+                        expr = (
+                            self.expression()
+                        )  # Use the expression method to handle the right-hand side
+                        # TODO Fix this, rn logic is going one step further than needed, so rollback is needed
+                        self.rollback()
+                        return VarAssignNode(var_name, expr)
+
                     # Now expecting a value for initialization
-                    if self.current_token[0] in (TT_STRING, TT_NUMBER):
+                    if self.current_token[0] in (TT_STRING):
                         value = self.current_token[1]
 
                         return VarAssignNode(
@@ -223,3 +241,78 @@ class Parser:
                 args.append(self.current_token[1])
 
         return FuncCallNode(func_name, args)
+
+    def expression(self):
+        """
+        Handles the parsing of expressions.
+        """
+        return self.binary_operation(self.term, (TT_PLUS, TT_MINUS))
+
+    def term(self):
+        """
+        Handles the parsing of terms within expressions, like multiplication and division.
+        """
+        return self.binary_operation(self.factor, (TT_MUL, TT_DIV))
+
+    def factor(self):
+        """
+        Parses a factor which can be a number, a variable, or an expression in parentheses.
+        """
+        token = self.current_token
+        if token[0] in (TT_PLUS, TT_MINUS):  # Unary plus or minus
+            self.advance()
+            factor = self.factor()
+            # TODO: return UnaryOpNode(token, factor)
+            # return UnaryOpNode(token, factor)
+            pass
+
+        elif token[0] == TT_NUMBER:  # Number
+            self.advance()
+            return NumberNode(token[1])
+
+        elif token[0] == TT_LPAREN:  # Parenthesized expression
+            self.advance()
+            expr = self.expression()
+            if self.current_token[0] != TT_RPAREN:
+                raise Exception("Expected ')'")
+            self.advance()  # Consume the ')'
+            return expr
+
+        elif token[0] == TT_IDENTIFIER:  # Variable access
+            self.advance()
+            return VarAccessNode(token[1])
+
+        else:
+            raise Exception(f"Unexpected token {token}")
+
+    def binary_operation(self, func_a, ops, func_b=None):
+        """
+        Constructs a binary operation AST node.
+        """
+        if func_b is None:
+            func_b = func_a
+
+        left = func_a()  # Parse the left-hand operand
+
+        while self.current_token is not None and self.current_token[0] in ops:
+            op_tok = self.current_token
+            self.advance()  # Move past the operator
+            right = func_b()  # Parse the right-hand operand
+            left = self.make_binary_node(op_tok, left, right)  # Create the AST node
+
+        return left
+
+    def make_binary_node(self, op_tok, left, right):
+        """
+        Create the appropriate binary operation AST node based on the operator token.
+        """
+        if op_tok[0] == TT_PLUS:
+            return AddNode(left, right)
+        elif op_tok[0] == TT_MINUS:
+            return SubtractNode(left, right)
+        elif op_tok[0] == TT_MUL:
+            return MultiplyNode(left, right)
+        elif op_tok[0] == TT_DIV:
+            return DivideNode(left, right)
+        else:
+            raise Exception(f"Unexpected operator {op_tok}")

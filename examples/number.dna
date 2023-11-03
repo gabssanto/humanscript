@@ -1,0 +1,2 @@
+number as Number = 32
+number2 as Number = ask "Enter a number: "

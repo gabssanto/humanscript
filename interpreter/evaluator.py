@@ -36,6 +36,9 @@ class Evaluator:
     def visit_StringNode(self, node):
         return node.value
 
+    def visit_NumberNode(self, node):
+        return node.value
+
     def visit_InputNode(self, node):
         return input(node.prompt)
 
@@ -106,3 +109,15 @@ class Evaluator:
         self.variables = old_variables
 
         return result
+
+    def visit_AddNode(self, node):
+        return self.visit(node.left_node) + self.visit(node.right_node)
+
+    def visit_MultiplyNode(self, node):
+        return self.visit(node.left_node) * self.visit(node.right_node)
+
+    def visit_SubtractNode(self, node):
+        return self.visit(node.left_node) - self.visit(node.right_node)
+
+    def visit_DivideNode(self, node):
+        return self.visit(node.left_node) / self.visit(node.right_node)

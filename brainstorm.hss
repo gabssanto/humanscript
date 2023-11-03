@@ -105,7 +105,7 @@ Array
 Dictionary
 Class
 Function
-Bluetell (Interface)
+Blueprint (Interface)
 Type (Union or Intersection)
 
 # Generic types
@@ -122,7 +122,7 @@ Result as Type is String or Number
 Result as Type is String and Number
 
 # Interfaces
-Person as Bluetell with
+Person as Blueprint with
     name as String
     age as Number
     address as Dictionary

@@ -26,8 +26,10 @@ def main():
 
     # Lexing, parsing, and evaluation
     tokens = lexer(code)
+    # print(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
+    # print(ast)
     evaluator = Evaluator()
     for node in ast:
         # print(node)

@@ -2,8 +2,7 @@ import re
 from token_types import *
 
 # Assume keywords is now a dictionary where the key is the keyword string and the value is the corresponding token type.
-from keywords import keywords
-from operators import operators
+from keywords import keywords, operators
 
 
 # Lexer: tokenize the input code
@@ -22,8 +21,14 @@ def lexer(code):
             else:
                 tokens.append((TT_IDENTIFIER, identifier))
         # Match operators
-        elif match := re.match(r"==|!=|<=|>=|&&|\|\||[+\-*/<>]", code):
-            tokens.append((TT_OPERATOR, match.group(0)))
+        elif match := re.match(r"==|!=|<=|>=|&&|\|\||[+\-*/%<>()]", code):
+            operator = match.group(0)
+            if operator in operators:
+                tokens.append((operators[operator], operator))
+            else:
+                tokens.append(
+                    (TT_OPERATOR, operator)
+                )  # Fallback, in case operator is not in the dictionary
         # Match strings
         elif match := re.match(r'"[^"]*"', code):
             tokens.append((TT_STRING, match.group(0)[1:-1]))  # Remove quotation marks

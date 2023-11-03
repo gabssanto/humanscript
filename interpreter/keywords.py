@@ -48,3 +48,14 @@ keywords = {
     "call": TT_KEYWORD,
     # ... other keywords ...
 }
+
+operators = {
+    # OPERATORS
+    "+": TT_PLUS,
+    "-": TT_MINUS,
+    "*": TT_MUL,
+    "/": TT_DIV,
+    "%": TT_MOD,
+    "(": TT_LPAREN,
+    ")": TT_RPAREN,
+}

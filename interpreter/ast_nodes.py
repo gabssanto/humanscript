@@ -19,6 +19,14 @@ class StringNode(ASTNode):
         return f"StringNode({self.value})"
 
 
+class NumberNode(ASTNode):
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self) -> str:
+        return f"NumberNode({self.value})"
+
+
 class VarAssignNode(ASTNode):
     def __init__(self, name, value):
         self.name = name
@@ -70,3 +78,35 @@ class FuncCallNode(ASTNode):
 
     def __repr__(self) -> str:
         return f"FuncCallNode({self.name}, {self.args})"
+
+
+class BinaryOperationNode(ASTNode):
+    def __init__(self, left_node, operator, right_node):
+        self.left_node = left_node
+        self.operator = operator
+        self.right_node = right_node
+
+    def __repr__(self) -> str:
+        return (
+            f"BinaryOperationNode({self.left_node}, {self.operator}, {self.right_node})"
+        )
+
+
+class AddNode(BinaryOperationNode):
+    def __init__(self, left_node, right_node):
+        super().__init__(left_node, "+", right_node)
+
+
+class SubtractNode(BinaryOperationNode):
+    def __init__(self, left_node, right_node):
+        super().__init__(left_node, "-", right_node)
+
+
+class MultiplyNode(BinaryOperationNode):
+    def __init__(self, left_node, right_node):
+        super().__init__(left_node, "*", right_node)
+
+
+class DivideNode(BinaryOperationNode):
+    def __init__(self, left_node, right_node):
+        super().__init__(left_node, "/", right_node)
