@@ -27,6 +27,22 @@ class NumberNode(ASTNode):
         return f"NumberNode({self.value})"
 
 
+class BooleanNode(ASTNode):
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self) -> str:
+        return f"BooleanNode({self.value})"
+
+
+class TypeOfNode(ASTNode):
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self) -> str:
+        return f"TypeOfNode({self.value})"
+
+
 class VarAssignNode(ASTNode):
     def __init__(self, name, value):
         self.name = name

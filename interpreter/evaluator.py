@@ -39,6 +39,12 @@ class Evaluator:
     def visit_NumberNode(self, node):
         return node.value
 
+    def visit_BooleanNode(self, node):
+        return node.value
+
+    def visit_TypeOfNode(self, node):
+        return type(node.value).__name__
+
     def visit_InputNode(self, node):
         return input(node.prompt)
 
@@ -57,6 +63,8 @@ class Evaluator:
             initial_value = ""
         elif node.var_type == "Number":
             initial_value = 0
+        elif node.var_type == "Boolean":
+            initial_value = False
         # Add cases for other types
         else:
             initial_value = None

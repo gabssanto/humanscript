@@ -13,6 +13,9 @@ def lexer(code):
         # Skip whitespaces
         if match := re.match(r"\s+", code):
             pass
+        # Match boolean
+        elif match := re.match(r"True|False", code):
+            tokens.append((TT_BOOL, match.group(0)))
         # Match keywords (including 'Function', 'do', 'end', 'with', etc.)
         elif match := re.match(r"[a-zA-Z_]\w*", code):
             identifier = match.group(0)

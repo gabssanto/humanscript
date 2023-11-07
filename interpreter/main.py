@@ -8,7 +8,7 @@ from evaluator import Evaluator
 def main():
     # Check if a file name is provided as a command-line argument
     if len(sys.argv) != 2:
-        print("Usage: python interpreter.py <filename>")
+        print("Usage: dna <filename>.dna")
         sys.exit(1)
 
     filename = sys.argv[1]

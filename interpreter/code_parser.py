@@ -25,18 +25,18 @@ class Parser:
         else:
             self.current_token = None
 
-    def parse(self):
-        ast = self.statements()
-        if self.current_token is not None:
-            raise Exception("Unexpected token: " + self.current_token[1])
-        return ast
-
     def peek(self, step=1):
         # Look ahead at the next token without consuming the current one
         next_pos = self.pos + step
         if next_pos < len(self.tokens):
             return self.tokens[next_pos]
         return None
+
+    def parse(self):
+        ast = self.statements()
+        if self.current_token is not None:
+            raise Exception("Unexpected token: " + self.current_token[1])
+        return ast
 
     def statements(self):
         statements = []
@@ -48,16 +48,15 @@ class Parser:
                 statements.append(self.ask_statement())
             elif self.current_token[1] == "call":
                 statements.append(self.func_call())
+            elif self.current_token[1] == "typeof":
+                statements.append(self.typeof_statement())
             elif self.current_token[0] == TT_IDENTIFIER:
                 if self.peek() == (TT_KEYWORD, "as"):
-                    # statements.append(self.var_declaration())
                     # Check if the next keyword is 'Function', indicating a function declaration
                     if self.peek(2) == (TT_KEYWORD, "Function"):
                         statements.append(self.func_declaration())
                     else:
                         statements.append(self.var_declaration())
-                        # self.rollback()
-                        # print("back to statements", self.current_token)
 
                 else:
                     # Handle variable assignment or other expressions that start with an identifier
@@ -84,9 +83,6 @@ class Parser:
         if self.current_token[0] != TT_STRING:
             raise Exception("Expected string literal for the input prompt")
         prompt = self.current_token[1]
-
-        # Advance past the string
-        # self.advance()
 
         var_name = prompt
 
@@ -136,7 +132,7 @@ class Parser:
                         return VarAssignNode(var_name, expr)
 
                     # Now expecting a value for initialization
-                    if self.current_token[0] in (TT_STRING):
+                    if self.current_token[0] in (TT_STRING, TT_BOOL):
                         value = self.current_token[1]
 
                         return VarAssignNode(
@@ -147,6 +143,8 @@ class Parser:
                             "Expected a value for variable initialization after '='"
                         )
                 else:
+                    # TODO: This is a so called gambiarra, fix this
+                    self.rollback()
                     # If there's no '=', proceed with declaration without initialization
                     return VarDeclNode(var_name, var_type)
 

@@ -127,3 +127,9 @@ Person as Blueprint with
     age as Number
     address as Dictionary
 end
+
+# Load python code
+python_code as Python do
+    import math
+    print(math.ceil(4.5))
+end

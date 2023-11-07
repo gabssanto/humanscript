@@ -1,0 +1,7 @@
+true_boolean as Boolean = True
+false_boolean as Boolean = False
+default_boolean as Boolean
+
+tell true_boolean
+tell false_boolean
+tell default_boolean

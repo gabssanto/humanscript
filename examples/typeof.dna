@@ -1,0 +1,2 @@
+string_variable as String = "Hi"
+tell typeof string_variable
