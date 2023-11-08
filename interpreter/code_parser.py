@@ -42,14 +42,19 @@ class Parser:
         statements = []
         while self.current_token is not None and self.current_token[1] != "end":
             # print("statements", self.current_token)
-            if self.current_token[1] == "tell":
+            if self.current_token[1] == "Type":
+                # print("EOQ")
+                pass
+                # statements.append(self.typeof_statement())
+            elif self.current_token[1] == "tell":
                 statements.append(self.tell_statement())
             elif self.current_token[1] == "ask":
                 statements.append(self.ask_statement())
             elif self.current_token[1] == "call":
                 statements.append(self.func_call())
-            elif self.current_token[1] == "typeof":
-                statements.append(self.typeof_statement())
+            # elif self.current_token[1] == "typeof":
+            #     print("EOQ")
+            # statements.append(self.typeof_statement())
             elif self.current_token[0] == TT_IDENTIFIER:
                 if self.peek() == (TT_KEYWORD, "as"):
                     # Check if the next keyword is 'Function', indicating a function declaration
@@ -74,6 +79,9 @@ class Parser:
         elif self.current_token[0] == TT_IDENTIFIER:
             var_name = self.current_token[1]
             return PrintNode(VarAccessNode(var_name))  # Create a variable access node
+        elif self.current_token[0] == TT_TYPE:
+            self.advance()
+            return PrintNode(TypeNode(self.current_token[1]))
         else:
             raise Exception('Expected string or variable name after "tell"')
 
@@ -87,7 +95,7 @@ class Parser:
         var_name = prompt
 
         # Return a VarAssignNode with the variable name and an InputNode
-        return VarAssignNode(var_name, InputNode(prompt))
+        return VarAssignNode(var_name, InputNode(prompt), "String")
 
     def var_declaration(self):
         # Assume current token is the variable identifier
@@ -120,7 +128,7 @@ class Parser:
                                 "Expected string literal for the input prompt"
                             )
                         prompt = self.current_token[1]
-                        return VarAssignNode(var_name, InputNode(prompt))
+                        return VarAssignNode(var_name, InputNode(prompt), var_type)
 
                     if self.current_token[0] in (TT_NUMBER, TT_LPAREN, TT_IDENTIFIER):
                         # print("var assign", self.current_token)
@@ -129,14 +137,14 @@ class Parser:
                         )  # Use the expression method to handle the right-hand side
                         # TODO Fix this, rn logic is going one step further than needed, so rollback is needed
                         self.rollback()
-                        return VarAssignNode(var_name, expr)
+                        return VarAssignNode(var_name, expr, var_type)
 
                     # Now expecting a value for initialization
                     if self.current_token[0] in (TT_STRING, TT_BOOL):
                         value = self.current_token[1]
 
                         return VarAssignNode(
-                            var_name, value
+                            var_name, value, var_type
                         )  # Use a VarAssignNode to assign the initial value
                     else:
                         raise Exception(

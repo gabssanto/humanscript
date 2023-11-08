@@ -1,2 +1,7 @@
-string_variable as String = "Hi"
-tell typeof string_variable
+string_variable as String = "Hello World"
+number_variable as Number = 10
+boolean_variable as Boolean = True
+
+tell Type string_variable
+tell Type number_variable
+tell Type boolean_variable

@@ -10,6 +10,7 @@ TT_EQUALS = "EQUALS"
 TT_COMMA = "COMMA"
 TT_COMMENT = "COMMENT"  # for single line or multi-line comments.
 TT_BOOL = "BOOL"
+TT_TYPE = "TYPE"
 """
   OPERATORS
 """

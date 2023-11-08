@@ -35,21 +35,22 @@ class BooleanNode(ASTNode):
         return f"BooleanNode({self.value})"
 
 
-class TypeOfNode(ASTNode):
+class TypeNode(ASTNode):
     def __init__(self, value):
         self.value = value
 
     def __repr__(self) -> str:
-        return f"TypeOfNode({self.value})"
+        return f"TypeNode({self.value})"
 
 
 class VarAssignNode(ASTNode):
-    def __init__(self, name, value):
+    def __init__(self, name, value, var_type=None):
         self.name = name
         self.value = value
+        self.var_type = var_type
 
     def __repr__(self) -> str:
-        return f"VarAssignNode({self.name}, {self.value})"
+        return f"VarAssignNode({self.name}, {self.value}, {self.var_type})"
 
 
 class VarAccessNode(ASTNode):

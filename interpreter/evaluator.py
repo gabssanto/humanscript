@@ -5,6 +5,7 @@ from ast_nodes import *
 class Evaluator:
     def __init__(self):
         self.variables = {}
+        self.variables_types = {}
 
     def visit(self, node):
         # If the node is a raw datatype, return it as is.
@@ -25,6 +26,10 @@ class Evaluator:
         value = self.visit(node.value)
         print(value)
         return value
+
+    def visit_TypeNode(self, node):
+        value = self.visit(node.value)
+        return self.variables_types[value]
 
     def visit_VarAccessNode(self, node):
         var_name = node.name
@@ -53,6 +58,7 @@ class Evaluator:
             value = self.visit(node.value)
         else:
             value = node.value  # Directly assign the value
+        self.variables_types[node.name] = node.var_type
         self.variables[node.name] = value
         return value
 
@@ -61,13 +67,17 @@ class Evaluator:
         # For simplicity, we will initialize all variables to None or an empty equivalent
         if node.var_type == "String":
             initial_value = ""
+            self.variables_types[node.name] = "String"
         elif node.var_type == "Number":
             initial_value = 0
+            self.variables_types[node.name] = "Number"
         elif node.var_type == "Boolean":
             initial_value = False
+            self.variables_types[node.name] = "Boolean"
         # Add cases for other types
         else:
             initial_value = None
+            self.variables_types[node.name] = "None"
 
         self.variables[node.name] = initial_value
         return initial_value
